@@ -76,3 +76,9 @@ def FKHW3(q):
     return R,P,R_e,p_e
 
 
+
+q = [0,0,0]
+R,P,R_e,p_e = FKHW3(q)
+print(R_e,end = "\n")
+print("\n")
+print(p_e)
