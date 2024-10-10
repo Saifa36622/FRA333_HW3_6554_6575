@@ -93,6 +93,11 @@ def checkSingularityHW3(q: list[float], epsilon: float = 0.001) -> int:
 q_test_1 = [0.0, np.pi/2, 0.0]  # กำหนดตำแหน่งเอกฐานที่คาดว่าจะเกิดขึ้น
 q_test_2 = [0.0, 0.0, 0.0]  # กำหนดตำแหน่งที่คาดว่าจะไม่เกิดสถานะเอกฐาน
 
+J = endEffectorJacobianHW3(q_test_2)
+for i in J :
+    for j in i :
+        print(round(j,2))
+
 # เรียกใช้ฟังก์ชันเพื่อตรวจสอบสถานะเอกฐานในทั้งสองกรณี
 flag_1 = checkSingularityHW3(q_test_1)
 flag_2 = checkSingularityHW3(q_test_2)
