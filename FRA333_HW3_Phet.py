@@ -88,7 +88,6 @@ def checkSingularityHW3(q: list[float], epsilon: float = 0.001) -> int:
     # ตรวจสอบว่า |det(J*)| < epsilon หรือไม่
     return 1 if abs(det_J_linear) < epsilon else 0
 
-
 # ตัวอย่างการทดสอบฟังก์ชัน checkSingularityHW3
 q_test_1 = [0.0, np.pi/2, 0.0]  # กำหนดตำแหน่งเอกฐานที่คาดว่าจะเกิดขึ้น
 q_test_2 = [0.0, 0.0, 0.0]  # กำหนดตำแหน่งที่คาดว่าจะไม่เกิดสถานะเอกฐาน
