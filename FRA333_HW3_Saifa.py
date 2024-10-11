@@ -14,13 +14,11 @@ import numpy as np
 
 # Define the tool transformation matrix with the correct Y translation
 tool_transformation = (
-    SE3.Tx(-0.39243) @  # Translation along X-axis
+    SE3.Tx(-0.39243-0.082) @  # Translation along X-axis
     SE3.Tz(0.109) @     # Translation along Z-axis
     SE3.Ty(-0.093) @    # Translation along Y-axis (negative)
-    SE3.Ry(-pi/2) @       # Rotation around Y-axis by -π
-    SE3.Tz(0.082)       # Final translation along Z-axis
+    SE3.Ry(-pi/2)      # Rotation around Y-axis by 
 )
-
 # Define the robot using the specified MDH parameters and tool transformation
 robot = rtb.DHRobot(
     [
@@ -36,9 +34,11 @@ robot = rtb.DHRobot(
 # input("hold")
 #=============================================<คำตอบข้อ 1>======================================================#
 #code here
-def endEffectorJacobianHW3(q:list[float])->list[float]:
-    J_e = robot.jacob0(q)
-    # J_e = robot.jacobe(q)
+def endEffectorJacobianHW3(q:list[float],ref: str = "0")->list[float]:
+    if ref == "0":
+        J_e = robot.jacob0(q)
+    elif ref == "e":
+        J_e = robot.jacobe(q)
     return J_e
 #==============================================================================================================#
 #=============================================<คำตอบข้อ 2>======================================================#
@@ -64,30 +64,32 @@ def checkSingularityHW3(q:list[float])->bool:
 #code here
 def computeEffortHW3(q:list[float], w:list[float])->list[float]:
     J = robot.jacob0(q)
-    tau = np.dot(J.T, w)
-    # M = w[0:2]
-    # F= w[3:5]
+    J_T = np.transpose(J) #Transpose Jacobian Matrix
+    w_t = np.array(w) #Transpose wrench Matrix to 6x1
+    tau = J_T @ w_t
 
     return tau
 #==============================================================================================================#
 
-q_test_1 = [0.0, 0.0, 0.0]  # กำหนดตำแหน่งเอกฐานที่คาดว่าจะเกิดขึ้น
+q_test_1 = [0.0, 0.0, 0.0] 
 q_test_2 = [0.0, pi/2, 0]
-q_test_3 = [0.0, 0.0, pi/2]  # กำหนดตำแหน่งที่คาดว่าจะไม่เกิดสถานะเอกฐาน
+q_test_3 = [0.0, 0.0, pi/2]  
 
 w_example = [10, 0, 0, 0, 0, 0]
 
-J = endEffectorJacobianHW3(q_test_2)
+J = endEffectorJacobianHW3(q_test_1)
 
 for i in J :
-    for j in i :
-        print(round(j,2))
-
+    for j in range(len(i)) :
+        i[j] = round(i[j],2)
+    print(i)
 flag_1 = checkSingularityHW3(q_test_1)
 flag_2 = checkSingularityHW3(q_test_2)
+flag_3 = checkSingularityHW3(q_test_3)
 
 print(flag_1)
 print(flag_2)
+print(flag_3)
 
 check = computeEffortHW3(q_test_1,w_example)
 print(check)
