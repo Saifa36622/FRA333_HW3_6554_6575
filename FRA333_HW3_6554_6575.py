@@ -50,15 +50,13 @@ def checkSingularityHW3(q:list[float])->bool:
     # คำนวณ Determinant ของ Jacobian เชิงเส้น
     det_J_linear = np.linalg.det(J_linear)
 
-    print(f"Determinant for q = {q}: {det_J_linear:.6f}")
+    # print(f"Determinant for q = {q}: {det_J_linear:.6f}")
     treshhold = 0.01
     # print(abs(epsilon - abs(det_J_linear)))
     if abs(epsilon - abs(det_J_linear)) < treshhold:
         return 1 
     else :
         return 0
-
-    
 #==============================================================================================================#
 #=============================================<คำตอบข้อ 3>======================================================#
 #code here
@@ -71,25 +69,26 @@ def computeEffortHW3(q:list[float], w:list[float])->list[float]:
     return tau
 #==============================================================================================================#
 
-q_test_1 = [0.0, 0.0, 0.0] 
-q_test_2 = [0.0, pi/2, 0]
-q_test_3 = [0.0, 0.0, pi/2]  
+# q_test_1 = [0.0, 0.0, 0.0] 
+# q_test_2 = [0.0, pi/2, 0]
+# q_test_3 = [0.0, 0.0, pi/2]  
 
-w_example = [10, 0, 0, 0, 0, 0]
+# w_example = [10, 0, 0, 0, 0, 0]
 
-J = endEffectorJacobianHW3(q_test_1)
+# J = endEffectorJacobianHW3(q_test_1)
 
-for i in J :
-    for j in range(len(i)) :
-        i[j] = round(i[j],2)
-    print(i)
-flag_1 = checkSingularityHW3(q_test_1)
-flag_2 = checkSingularityHW3(q_test_2)
-flag_3 = checkSingularityHW3(q_test_3)
+# for i in J :
+#     for j in range(len(i)) :
+#         i[j] = round(i[j],2)
+#     print(i)
+    
+# flag_1 = checkSingularityHW3(q_test_1)
+# flag_2 = checkSingularityHW3(q_test_2)
+# flag_3 = checkSingularityHW3(q_test_3)
 
-print(flag_1)
-print(flag_2)
-print(flag_3)
+# print(flag_1)
+# print(flag_2)
+# print(flag_3)
 
-check = computeEffortHW3(q_test_1,w_example)
-print(check)
+# check = computeEffortHW3(q_test_1,w_example)
+# print(check)
