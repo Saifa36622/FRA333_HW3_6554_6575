@@ -29,9 +29,7 @@ robot = rtb.DHRobot(
     tool=tool_transformation,
     name="RRR_Robot"
 )
-# q = [0,0,0] 
-# robot.plot(q)
-# input("hold")
+
 #=============================================<คำตอบข้อ 1>======================================================#
 #code here
 def endEffectorJacobianHW3(q:list[float],ref: str = "0")->list[float]:
@@ -62,9 +60,10 @@ def checkSingularityHW3(q:list[float])->bool:
 #code here
 def computeEffortHW3(q:list[float], w:list[float])->list[float]:
     J = robot.jacob0(q)
-    J_T = np.transpose(J) #Transpose Jacobian Matrix
-    w_t = np.array(w) #Transpose wrench Matrix to 6x1
-    tau = J_T @ w_t
+    # J_T = np.transpose(J) #Transpose Jacobian Matrix
+    # w_t = np.array(w) #Transpose wrench Matrix to 6x1
+    # tau = J_T @ w_t
+    tau = robot.pay(w,q,J)
 
     return tau
 #==============================================================================================================#
