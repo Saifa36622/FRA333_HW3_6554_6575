@@ -16,11 +16,7 @@ from FRA333_HW3_6554_6575 import checkSingularityHW3
 from FRA333_HW3_6554_6575 import computeEffortHW3
 
 # ทดสอบการคำนวณ Jacobian
-q_test_1 = [0.0, 0.0, 0.0] 
-q_test_2 = [0.0, pi/2, 0]
-q_test_3 = [0.0, 0.0, pi/2]  
 
-w_example = [10, 0, 0, 0, 0, 0]
 
 print("\n")
 print("ตรวจคำตอบข้อที่ 1\n")
@@ -54,6 +50,13 @@ def endEffectorJacobianHW3_robotic(q:list[float],ref: str = "0")->list[float]:
 #==============================================================================================================#
 
 # คำนวณ Jacobian จาก MDH (roboticstoolbox)
+
+q_test_1 = [0.0, 0.0, 0.0] 
+q_test_2 = [0.0, pi/2, 0]
+q_test_3 = [0.0, 0.0, pi/2]  
+
+w_example = [10, 0, 0, 0, 0, 0]
+
 J_ans = endEffectorJacobianHW3(q_test_3)
 
 # คำนวณ Jacobian แบบ manual
@@ -113,6 +116,9 @@ flag_3 = checkSingularityHW3(q_test_3)
 print("flag1 of q_test_1:",flag_1)
 print("flag2 of q_test_2:",flag_2)
 print("flag3 of q_test_3:",flag_3)
+
+print("\n")
+print("ตรวจคำตอบข้อที่ 3\n")
 #=============================================<คำตอบข้อ 3>======================================================#
 #code here
 def computeEffortHW3_robotic(q:list[float], w:list[float])->list[float]:

@@ -74,6 +74,7 @@ def endEffectorJacobianHW3(q: list[float], ref: int = 0) -> list[float]:
 #===========================================<ตรวจคำตอบข้อ 2>====================================================#
 #code here
 def checkSingularityHW3(q: list[float]) -> bool:
+    
     epsilon = 0.001
     treshhold = 0.01
 
@@ -95,8 +96,7 @@ def checkSingularityHW3(q: list[float]) -> bool:
         return 0  # Non-singular
 
 #==============================================================================================================#
-print("\n")
-print("ตรวจคำตอบข้อที่ 3\n")
+
 #===========================================<ตรวจคำตอบข้อ 3>====================================================#
 #code here
 def computeEffortHW3(q: list[float], w: list[float]) -> list[float]:

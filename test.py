@@ -23,11 +23,12 @@ robot = rtb.DHRobot(
 )
 
 # Test the forward kinematics at q = [0, 0, 0]
-q = [pi, 0, 0]
-
-T = robot.fkine(q)
+q = [0.0, 0.0, pi/2] 
+robot.plot(q)
+input("")
+# T = robot.fkine(q)
 # print("End-effector transformation matrix at q = [0, 0, 0]:")
-print(T)
+# print(T)
 
 
 # Jacobian = robot.jacob0(q)

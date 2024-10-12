@@ -78,7 +78,7 @@ def FKHW3(q):
 
 
 
-# q = [math.pi,0,0]
+# q = [math.pi/2,0,0]
 # R,P,R_e,p_e = FKHW3(q)
 # print(R_e,end = "\n")
 # print("\n")
