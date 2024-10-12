@@ -1,93 +1,121 @@
-# file สำหรับเขียนคำตอบ
 # ในกรณีที่มีการสร้าง function อื่น ๆ ให้ระบุว่า input-output คืออะไรด้วย
 '''
-ชื่อ_รหัส(ธนวัฒน์_6461)
+ชื่อ_รหัส(ex: ธนวัฒน์_6461)
 1.
 2.
 3.
 '''
-
 import roboticstoolbox as rtb
 from spatialmath import SE3
 from math import pi
 import numpy as np
+from HW3_utils import FKHW3
 
-# Define the tool transformation matrix with the correct Y translation
-tool_transformation = (
-    SE3.Tx(-0.39243-0.082) @  # Translation along X-axis
-    SE3.Tz(0.109) @     # Translation along Z-axis
-    SE3.Ty(-0.093) @    # Translation along Y-axis (negative)
-    SE3.Ry(-pi/2)      # Rotation around Y-axis by 
-)
-# Define the robot using the specified MDH parameters and tool transformation
-robot = rtb.DHRobot(
-    [
-        rtb.RevoluteMDH(d=0.0892, offset=pi),
-        rtb.RevoluteMDH(alpha=pi/2),
-        rtb.RevoluteMDH(a=-0.425),
-    ],
-    tool=tool_transformation,
-    name="RRR_Robot"
-)
 
-#=============================================<คำตอบข้อ 1>======================================================#
+
+#===========================================<ข้อ 1>====================================================#
 #code here
-def endEffectorJacobianHW3(q:list[float],ref: str = "0")->list[float]:
-    if ref == "0":
-        J_e = robot.jacob0(q)
-    elif ref == "e":
-        J_e = robot.jacobe(q)
-    return J_e
+# ฟังก์ชันสร้าง Skew-symmetric matrix จากเวกเตอร์
+def skew_matrix(v):
+    """ สร้าง Skew-symmetric matrix จากเวกเตอร์ v """
+    return np.array([
+        [0, -v[2], v[1]],
+        [v[2], 0, -v[0]],
+        [-v[1], v[0], 0]
+    ])
+
+# ฟังก์ชันคำนวณ Jacobian ของ End-Effector
+def endEffectorJacobianHW3(q: list[float], ref: int = 0) -> list[float]:
+    """
+    คำนวณ Jacobian ของหุ่นยนต์
+    q: มุมของข้อต่อในรูปแบบ [q1, q2, q3]
+    ref: 0 สำหรับ Base Frame และ 1 สำหรับ End-Effector Frame
+    """
+    # เรียกใช้ Forward Kinematics จากฟังก์ชัน FKHW3
+    R, P, R_e, p_e = FKHW3(q)
+
+    # กำหนดจำนวนข้อต่อ n = 3 สำหรับ RRR Manipulator
+    n = 3
+
+    # สร้าง Jacobian Matrix (Linear Velocity และ Angular Velocity)
+    J_v = np.zeros((3, n))  # เมตริกซ์จาโคเบียนเชิงเส้นขนาด 3x3
+    J_omega = np.zeros((3, n))  # เมตริกซ์จาโคเบียนเชิงมุมขนาด 3x3
+
+    # คำนวณหา Jacobian ทีละข้อต่อ
+    for i in range(n):
+        # ตำแหน่งของข้อต่อ i
+        p_0_i = P[:, i]  # ตำแหน่งของจุดกำเนิดเฟรม F_i
+
+        # แกนหมุนของข้อต่อที่ i
+        z_0_i = R[:, 2, i]  # แกน Z ของเฟรม F_i
+
+        # คำนวณความเร็วเชิงเส้น (Linear Velocity)
+        J_v[:, i] = np.cross(z_0_i, (p_e - p_0_i))
+
+        # คำนวณความเร็วเชิงมุม (Angular Velocity)
+        J_omega[:, i] = z_0_i
+
+    if ref == 1:  # ในกรณีที่ต้องการ Jacobian อ้างอิงกับ End-Effector Frame
+        # คำนวณการแปลงค่า Jacobian จาก Base Frame ไป End-Effector Frame
+        R_e0 = np.linalg.inv(R_e)  # Inverse Rotation Matrix จาก Base ไป End-Effector
+        J_v = R_e0 @ J_v
+        J_omega = R_e0 @ J_omega
+
+    # รวมเมตริกซ์จาโคเบียนเชิงเส้นและเชิงมุม
+    J_e_manual = np.vstack((J_v, J_omega))
+
+    # แปลงเป็น list และส่งค่ากลับ
+    return J_e_manual
+
+
+
 #==============================================================================================================#
-#=============================================<คำตอบข้อ 2>======================================================#
+
+#===========================================<ตรวจคำตอบข้อ 2>====================================================#
 #code here
-def checkSingularityHW3(q:list[float])->bool:
+def checkSingularityHW3(q: list[float]) -> bool:
     epsilon = 0.001
-    J_e = robot.jacob0(q)
-    J_linear = J_e[:3, :]
-    # คำนวณ Determinant ของ Jacobian เชิงเส้น
-    det_J_linear = np.linalg.det(J_linear)
-
-    # print(f"Determinant for q = {q}: {det_J_linear:.6f}")
     treshhold = 0.01
-    # print(abs(epsilon - abs(det_J_linear)))
-    if abs(epsilon - abs(det_J_linear)) < treshhold:
-        return 1 
-    else :
-        return 0
+
+    # คำนวณ Jacobian แบบ manual
+    J_e_manual = endEffectorJacobianHW3(q, ref=0)
+
+    # ดึงเฉพาะส่วนเชิงเส้น (3x3 matrix)
+    J_linear_manual = J_e_manual[:3, :]  # Jacobian เชิงเส้น
+
+    # คำนวณ Determinant ของ Jacobian เชิงเส้น
+    det_J_linear_manual = np.linalg.det(J_linear_manual)
+
+    # print(f"Determinant for q = {q}: {det_J_linear_manual:.6f}")
+
+    # ตรวจสอบว่า Jacobian ใกล้เคียงกับ Singular Point หรือไม่
+    if abs(epsilon - abs(det_J_linear_manual)) < treshhold:
+        return 1  # Singular
+    else:
+        return 0  # Non-singular
+
 #==============================================================================================================#
-#=============================================<คำตอบข้อ 3>======================================================#
+print("\n")
+print("ตรวจคำตอบข้อที่ 3\n")
+#===========================================<ตรวจคำตอบข้อ 3>====================================================#
 #code here
-def computeEffortHW3(q:list[float], w:list[float])->list[float]:
-    J = robot.jacob0(q)
-    # J_T = np.transpose(J) #Transpose Jacobian Matrix
-    # w_t = np.array(w) #Transpose wrench Matrix to 6x1
-    # tau = J_T @ w_t
-    tau = robot.pay(w,q,J)
+def computeEffortHW3(q: list[float], w: list[float]) -> list[float]:
+    """
+    ฟังก์ชันคำนวณค่าแรงบิด (Torque) โดยใช้ Jacobian ที่คำนวณด้วยมือ
+    q: มุมของข้อต่อในรูปแบบ [q1, q2, q3]
+    w: แรงกระทำ (Wrench) ในรูปแบบ [Fx, Fy, Fz, Mx, My, Mz]
+    """
+    # คำนวณ Jacobian แบบ manual
+    J_manual = endEffectorJacobianHW3(q, ref=0)
 
-    return tau
+    # ทรานสโพส Jacobian Matrix
+    J_T_manual = np.transpose(J_manual)
+
+    # แปลง wrench เป็น numpy array
+    w_t = np.array(w)  # แปลง w ให้เป็นเวกเตอร์ 6x1
+
+    # คำนวณค่าแรงบิด (Torque)
+    tau_manual = J_T_manual @ w_t
+
+    return tau_manual
 #==============================================================================================================#
-
-# q_test_1 = [0.0, 0.0, 0.0] 
-# q_test_2 = [0.0, pi/2, 0]
-# q_test_3 = [0.0, 0.0, pi/2]  
-
-# w_example = [10, 0, 0, 0, 0, 0]
-
-# J = endEffectorJacobianHW3(q_test_1)
-
-# for i in J :
-#     for j in range(len(i)) :
-#         i[j] = round(i[j],2)
-#     print(i)
-    
-# flag_1 = checkSingularityHW3(q_test_1)
-# flag_2 = checkSingularityHW3(q_test_2)
-# flag_3 = checkSingularityHW3(q_test_3)
-
-# print(flag_1)
-# print(flag_2)
-# print(flag_3)
-
-# check = computeEffortHW3(q_test_1,w_example)
-# print(check)
